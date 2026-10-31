@@ -1,0 +1,26 @@
+*{box-sizing:border-box}body{margin:0;font-family:Poppins,system-ui,sans-serif;background:#f8fafc;color:#0f172a}
+.auth{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:48px 24px;background:linear-gradient(#1e40af,#0ea5e9);color:#fff}
+.logo{font-size:40px;font-weight:800;font-style:italic;margin-bottom:32px}.logo b{color:#3b82f6}
+.tabs{display:flex;background:#0003;border-radius:99px;padding:6px;width:100%;max-width:420px;margin-bottom:24px}
+.tabs button{flex:1;border:0;padding:14px;border-radius:99px;background:none;color:#cbd5e1;font-weight:600}
+.tabs .on{background:linear-gradient(90deg,#38bdf8,#22d3ee);color:#fff}
+.auth form{display:grid;gap:12px;width:100%;max-width:420px}
+.auth input{padding:16px 22px;border-radius:99px;border:0;font-size:15px}
+.auth .go{background:#1e2a78;color:#fff;font-weight:700;padding:16px;border:0;border-radius:99px;font-size:16px}
+.err{color:#fecaca;font-size:14px;text-align:center}
+.top{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#fff;border-bottom:1px solid #e2e8f0}
+.top button{border:1px solid #e2e8f0;background:#fff;border-radius:12px;padding:10px 14px;font-size:18px}
+.side{position:fixed;inset:0 25% 0 0;background:#fff;z-index:9;padding:16px;box-shadow:4px 0 20px #0003;overflow:auto}
+.side a,.side button{display:block;padding:14px;border-radius:12px;color:#334155;text-decoration:none;border:0;background:none;width:100%;text-align:left;font-size:16px}
+.side a.on{background:#eff6ff;color:#2563eb;font-weight:600}
+.wrap{max-width:640px;margin:0 auto;padding:16px;display:grid;gap:14px}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:20px;padding:18px}
+.hero{background:linear-gradient(135deg,#0f172a,#1e3a8a);color:#fff;border-radius:24px;padding:22px}
+.hero h2{margin:0 0 6px}.row{display:flex;gap:10px;margin-top:14px}
+.btn{background:#2563eb;color:#fff;border:0;border-radius:12px;padding:12px 16px;font-weight:600;text-decoration:none;display:inline-block}
+.btn.d{background:#1e293b}.btn.r{background:#dc2626}
+.big{font-size:26px;font-weight:700}.mut{color:#64748b;font-size:14px}
+.card input,.card select{width:100%;padding:12px;border:1px solid #e2e8f0;border-radius:12px;font-size:15px;margin:8px 0}
+.item{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 0;border-bottom:1px solid #f1f5f9}
+.tag{padding:3px 10px;border-radius:99px;font-size:12px;background:#e2e8f0}.tag.success{background:#bbf7d0}.tag.waiting{background:#fef08a}.tag.canceled{background:#fecaca}
+footer{text-align:center;padding:32px 16px;color:#64748b;font-size:13px}

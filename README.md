@@ -1,7 +1,0 @@
-# SoraOTP
-1. `npm i`, salin `.env.example` ke `.env.local` lalu isi.
-2. Firebase: aktifkan Authentication (Email/Password) dan **Realtime Database**; tempel isi `database.rules.json` di tab Rules lalu Publish.
-3. Samakan endpoint di `lib/provider.js` (NusaOTP) dan `lib/qris.js` (buatqris) dengan dokumentasi masing-masing.
-4. Webhook buatqris (opsional): `https://DOMAIN/api/deposit/callback`.
-5. Admin: buka `/admin/soraotp` (isi OWNER_EMAIL, daftar dulu dengan email itu).
-6. Deploy: push ke GitHub, import di Vercel, isi semua env var.

@@ -4,6 +4,7 @@ import { onAuthStateChanged, signOut } from 'firebase/auth'
 import { ref, onValue } from 'firebase/database'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
+import { Menu, Close } from '@/components/Icons'
 import { auth, db } from '@/lib/firebase'
 const Ctx = createContext(null)
 export const useMe = () => useContext(Ctx)
@@ -22,7 +23,7 @@ export default function Shell({ children }) {
   if (!me) return <p style={{ padding: 24 }}>Memuat…</p>
   if (me.blocked) return <p style={{ padding: 24 }}>Akun kamu diblokir. Hubungi admin. <button onClick={() => signOut(auth)}>Logout</button></p>
   return <Ctx.Provider value={me}>
-    <div className="top"><button onClick={() => setOpen(!open)}>{open ? '✕' : '☰'}</button><div className="brand"><img src="/logo.webp" alt="" />Sora<span>OTP</span></div><span /></div>
+    <div className="top"><button onClick={() => setOpen(!open)}>{open ? <Close /> : <Menu />}</button><div className="brand"><img src="/logo.webp" alt="" />Sora<span>OTP</span></div><span /></div>
     {open && <nav className="side" onClick={() => setOpen(false)}>
       {MENU.map(([h, t]) => <Link key={h} href={h} className={path === h ? 'on' : ''}>{t}</Link>)}
       {me.role === 'owner' && <Link href="/admin/soraotp">Admin Panel</Link>}

@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth'
 import { ref, set } from 'firebase/database'
 import { auth, db } from '@/lib/firebase'
+import { Eye, EyeOff } from '@/components/Icons'
 export default function Login() {
   const r = useRouter()
   const [reg, setReg] = useState(false), [f, setF] = useState({}), [msg, setMsg] = useState(null), [show, setShow] = useState(false)
@@ -24,7 +25,7 @@ export default function Login() {
     if (!f.email) return setMsg({ e: 1, t: 'Isi email dulu' })
     try { await sendPasswordResetEmail(auth, f.email); setMsg({ t: 'Link reset password dikirim ke email.' }) } catch (x) { bad(x) }
   }
-  const pwField = (k, ph) => <div className="pw"><input type={show ? 'text' : 'password'} placeholder={ph} required minLength={6} onChange={set(k)} /><button type="button" onClick={() => setShow(!show)}>{show ? '🙈' : '👁'}</button></div>
+  const pwField = (k, ph) => <div className="pw"><input type={show ? 'text' : 'password'} placeholder={ph} required minLength={6} onChange={set(k)} /><button type="button" onClick={() => setShow(!show)}>{show ? <EyeOff /> : <Eye />}</button></div>
   return <div className="lg"><div className="lgcard">
     <form className="lgform" onSubmit={submit}>
       <h1>{reg ? 'BUAT AKUN' : 'WELCOME BACK!'}</h1>

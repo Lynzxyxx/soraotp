@@ -1,13 +1,13 @@
 'use client'
 import { useState } from 'react'
-import { doc, updateDoc } from 'firebase/firestore'
+import { ref, update } from 'firebase/database'
 import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from 'firebase/auth'
 import Shell, { useMe } from '@/components/Shell'
 import { auth, db } from '@/lib/firebase'
 function Body() {
   const me = useMe()
   const [n, setN] = useState(me.name || ''), [w, setW] = useState(me.wa || ''), [p, setP] = useState({}), [m, setM] = useState('')
-  async function save() { try { await updateDoc(doc(db, 'users', me.uid), { name: n, wa: w }); setM('Profil disimpan') } catch (e) { setM(e.message) } }
+  async function save() { try { await update(ref(db, 'users/' + me.uid), { name: n, wa: w }); setM('Profil disimpan') } catch (e) { setM(e.message) } }
   async function pw() {
     try {
       if (!p.a || (p.b || '').length < 6 || p.b !== p.c) return setM('Isi password lama, dan password baru minimal 6 karakter yang sama')

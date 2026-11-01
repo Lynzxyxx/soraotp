@@ -1,13 +1,12 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore'
 import Shell, { useMe } from '@/components/Shell'
-import { api, db, rp } from '@/lib/firebase'
+import { api, watchMine, rp } from '@/lib/firebase'
 function Body() {
   const me = useMe()
   const [amount, setAmount] = useState(5000), [list, setList] = useState([]), [msg, setMsg] = useState(''), [cur, setCur] = useState(null)
   useEffect(() => { if (!cur) return; const t = setInterval(async () => { try { const j = await api('/api/deposit/' + cur.id); if (j.status !== 'pending') { setCur(null); setMsg('Deposit ' + j.status) } } catch {} }, 4000); return () => clearInterval(t) }, [cur])
-  useEffect(() => onSnapshot(query(collection(db, 'deposits'), where('uid', '==', me.uid), orderBy('createdAt', 'desc')), s => setList(s.docs.map(d => ({ id: d.id, ...d.data() })))), [])
+  useEffect(() => watchMine('deposits', me.uid, setList), [])
   async function pay() {
     try { const j = await api('/api/deposit', { method: 'POST', body: JSON.stringify({ amount: Number(amount) }) }); setCur(j); setMsg('Scan QRIS lalu bayar. Saldo masuk otomatis.') }
     catch (e) { setMsg(e.message) }

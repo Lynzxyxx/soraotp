@@ -1,7 +1,7 @@
 'use client'
 import { createContext, useContext, useEffect, useState } from 'react'
 import { onAuthStateChanged, signOut } from 'firebase/auth'
-import { doc, onSnapshot } from 'firebase/firestore'
+import { ref, onValue } from 'firebase/database'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { auth, db } from '@/lib/firebase'
@@ -15,7 +15,7 @@ export default function Shell({ children }) {
     let off = () => {}
     const un = onAuthStateChanged(auth, u => {
       off(); if (!u) return r.replace('/login')
-      off = onSnapshot(doc(db, 'users', u.uid), s => setMe({ uid: u.uid, ...s.data() }))
+      off = onValue(ref(db, 'users/' + u.uid), s => setMe(s.val() ? { uid: u.uid, ...s.val() } : null))
     })
     return () => { un(); off() }
   }, [])

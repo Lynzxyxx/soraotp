@@ -1,0 +1,11 @@
+{"rules":{
+ ".read":false,".write":false,
+ "users":{"$uid":{
+  ".read":"auth != null && auth.uid === $uid",
+  ".write":"auth != null && auth.uid === $uid && !data.exists() && newData.child('saldo').val() === 0 && !newData.hasChild('role') && !newData.hasChild('blocked') && !newData.hasChild('saldoFrozen')",
+  "name":{".write":"auth != null && auth.uid === $uid && data.parent().exists()"},
+  "wa":{".write":"auth != null && auth.uid === $uid && data.parent().exists()"}
+ }},
+ "orders":{".indexOn":["uid"],".read":"auth != null && query.orderByChild === 'uid' && query.equalTo === auth.uid"},
+ "deposits":{".indexOn":["uid"],".read":"auth != null && query.orderByChild === 'uid' && query.equalTo === auth.uid"}
+}}

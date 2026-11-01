@@ -35,3 +35,5 @@ a{color:var(--g)}
 .tag{padding:3px 10px;border-radius:99px;font-size:12px;background:#1c3324;color:var(--tx)}.tag.success{background:#14532d;color:#86efac}.tag.waiting{background:#713f12;color:#fde68a}.tag.canceled{background:#7f1d1d;color:#fecaca}
 footer{text-align:center;padding:32px 16px;color:var(--mut);font-size:13px}
 .card p,.card li{line-height:1.6;color:#c6e8d1}
+.sk{border-radius:18px;background:linear-gradient(90deg,#0e1a12,#16281c,#0e1a12);background-size:200% 100%;animation:sk 1.2s infinite}
+@keyframes sk{to{background-position:-200% 0}}

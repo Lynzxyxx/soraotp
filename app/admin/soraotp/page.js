@@ -12,7 +12,7 @@ export default function Admin() {
     try { await api('/api/admin/users', { method: 'POST', body: JSON.stringify({ uid, action, value }) }); load() } catch (e) { alert(e.message) }
   }
   if (!ready) return <p style={{ padding: 24 }}>Memuat…</p>
-  if (err === 'forbidden') return <p style={{ padding: 24 }}>Akses ditolak.</p>
+  if (err === 'forbidden') return <p style={{ padding: 24 }}>Akses ditolak. Akun ini bukan owner. Login dengan email yang diisi di OWNER_EMAIL.</p>
   return <main className="wrap" style={{ maxWidth: 900 }}>
     <div className="card"><b>Admin SoraOTP</b>
       <input placeholder="Cari email / nama / WA…" value={q} onChange={e => { setQ(e.target.value); load(e.target.value) }} /></div>

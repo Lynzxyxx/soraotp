@@ -1,35 +1,44 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth'
 import { doc, setDoc } from 'firebase/firestore'
 import { auth, db } from '@/lib/firebase'
 export default function Login() {
   const r = useRouter()
-  const [reg, setReg] = useState(false), [f, setF] = useState({}), [err, setErr] = useState('')
+  const [reg, setReg] = useState(false), [f, setF] = useState({}), [msg, setMsg] = useState(null), [show, setShow] = useState(false)
   const set = k => e => setF({ ...f, [k]: e.target.value })
+  const bad = e => setMsg({ e: 1, t: (e.code || e.message || '').replace('auth/', '').replace(/-/g, ' ') })
   async function submit(e) {
-    e.preventDefault(); setErr('')
+    e.preventDefault(); setMsg(null)
     try {
       if (reg) {
-        if (f.pw !== f.pw2) return setErr('Password tidak sama')
+        if (f.pw !== f.pw2) return setMsg({ e: 1, t: 'Password tidak sama' })
         const c = await createUserWithEmailAndPassword(auth, f.email, f.pw)
         await setDoc(doc(db, 'users', c.user.uid), { name: f.name, email: f.email, wa: f.wa, saldo: 0, deposit: 0, pembelian: 0, createdAt: Date.now() })
       } else await signInWithEmailAndPassword(auth, f.email, f.pw)
       r.replace('/dashboard')
-    } catch (x) { setErr(x.message.replace('Firebase: ', '')) }
+    } catch (x) { bad(x) }
   }
-  return <div className="auth">
-    <div className="logo">Sora<b>OTP</b></div>
-    <div className="tabs"><button className={!reg ? 'on' : ''} onClick={() => setReg(false)}>Masuk</button><button className={reg ? 'on' : ''} onClick={() => setReg(true)}>Daftar</button></div>
-    <form onSubmit={submit}>
-      {reg && <input placeholder="Nama lengkap anda" required onChange={set('name')} />}
-      <input type="email" placeholder="Email" required onChange={set('email')} />
-      {reg && <input placeholder="Nomor WhatsApp (088xxxxx)" required onChange={set('wa')} />}
-      <input type="password" placeholder="Password" required minLength={6} onChange={set('pw')} />
-      {reg && <input type="password" placeholder="Ulangi Password" required onChange={set('pw2')} />}
-      {err && <div className="err">{err}</div>}
-      <button className="go">{reg ? 'Daftar Sekarang' : 'Masuk'}</button>
+  async function lupa() {
+    if (!f.email) return setMsg({ e: 1, t: 'Isi email dulu' })
+    try { await sendPasswordResetEmail(auth, f.email); setMsg({ t: 'Link reset password dikirim ke email.' }) } catch (x) { bad(x) }
+  }
+  const pwField = (k, ph) => <div className="pw"><input type={show ? 'text' : 'password'} placeholder={ph} required minLength={6} onChange={set(k)} /><button type="button" onClick={() => setShow(!show)}>{show ? '🙈' : '👁'}</button></div>
+  return <div className="lg"><div className="lgcard">
+    <form className="lgform" onSubmit={submit}>
+      <h1>{reg ? 'BUAT AKUN' : 'WELCOME BACK!'}</h1>
+      <p className="sub">{reg ? 'Daftar untuk mulai beli nomor OTP' : 'Masuk ke SoraOTP'}</p>
+      {reg && <><label>Nama lengkap</label><input placeholder="Nama kamu" required onChange={set('name')} /></>}
+      <label>Email</label><input type="email" placeholder="example@gmail.com" required onChange={set('email')} />
+      {reg && <><label>Nomor WhatsApp</label><input placeholder="088xxxxx" required onChange={set('wa')} /></>}
+      <label>Password</label>{pwField('pw', '••••••')}
+      {reg && <><label>Ulangi Password</label>{pwField('pw2', '••••••')}</>}
+      {!reg && <div className="lgrow"><span /><a href="#" onClick={e => { e.preventDefault(); lupa() }}>Lupa password?</a></div>}
+      <button className="lgbtn" style={{ marginTop: reg ? 18 : 0 }}>{reg ? 'DAFTAR SEKARANG' : 'SIGN IN'}</button>
+      {msg && <div className={msg.e ? 'err' : 'ok'}>{msg.t}</div>}
+      <div className="swap">{reg ? 'Sudah punya akun?' : 'Belum punya akun?'} <button type="button" onClick={() => { setReg(!reg); setMsg(null) }}>{reg ? 'Masuk' : 'Daftar'}</button></div>
     </form>
-  </div>
+    <div className="lgimg"><img src="/logo.webp" alt="SoraOTP" /></div>
+  </div></div>
 }

@@ -5,7 +5,7 @@ import { rp } from '@/lib/firebase'
 function Body() {
   const me = useMe()
   return <>
-    <div className="hero"><h2>Hai {me.name}</h2><div style={{ opacity: .8 }}>Dapatkan nomor virtual instan 24 jam dengan sistem verifikasi OTP cepat & terpercaya.</div>
+    <div className="hero"><h2>Hai <span>{me.name}</span></h2><div style={{ opacity: .8 }}>Dapatkan nomor virtual instan 24 jam dengan sistem verifikasi OTP cepat & terpercaya.</div>
       <div className="row"><Link className="btn" href="/deposit">Isi Saldo</Link><Link className="btn d" href="/beli">Beli OTP</Link></div></div>
     <div className="card"><div className="mut">Saldo</div><div className="big">{rp(me.saldo)}</div></div>
     <div className="row"><div className="card" style={{ flex: 1 }}><div className="mut">Deposit</div><div className="big">{rp(me.deposit)}</div></div>

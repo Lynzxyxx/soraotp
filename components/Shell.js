@@ -7,7 +7,7 @@ import Link from 'next/link'
 import { auth, db } from '@/lib/firebase'
 const Ctx = createContext(null)
 export const useMe = () => useContext(Ctx)
-const MENU = [['/dashboard','Dashboard'],['/deposit','Isi Saldo'],['/beli','Beli'],['/riwayat','Riwayat Pembelian'],['/layanan','Layanan & Harga']]
+const MENU = [['/dashboard','Dashboard'],['/deposit','Isi Saldo'],['/beli','Beli'],['/riwayat','Riwayat Pembelian'],['/layanan','Layanan & Harga'],['/profile','Pengaturan Akun'],['/tutorial','Tutorial'],['/syarat','Syarat & Ketentuan']]
 export default function Shell({ children }) {
   const r = useRouter(), path = usePathname()
   const [me, setMe] = useState(null), [open, setOpen] = useState(false)
@@ -22,7 +22,7 @@ export default function Shell({ children }) {
   if (!me) return <p style={{ padding: 24 }}>Memuat…</p>
   if (me.blocked) return <p style={{ padding: 24 }}>Akun kamu diblokir. Hubungi admin. <button onClick={() => signOut(auth)}>Logout</button></p>
   return <Ctx.Provider value={me}>
-    <div className="top"><button onClick={() => setOpen(!open)}>{open ? '✕' : '☰'}</button><b>Sora<span style={{color:'#2563eb'}}>OTP</span></b><span /></div>
+    <div className="top"><button onClick={() => setOpen(!open)}>{open ? '✕' : '☰'}</button><div className="brand"><img src="/logo.webp" alt="" />Sora<span>OTP</span></div><span /></div>
     {open && <nav className="side" onClick={() => setOpen(false)}>
       {MENU.map(([h, t]) => <Link key={h} href={h} className={path === h ? 'on' : ''}>{t}</Link>)}
       {me.role === 'owner' && <Link href="/admin/soraotp">Admin Panel</Link>}

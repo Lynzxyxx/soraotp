@@ -1,9 +1,6 @@
-import { uidFrom, rget, rupd, rtx, inc } from '@/lib/admin'
+import { uidFrom, rget, rupd } from '@/lib/admin'
+import { refund } from '@/lib/credit'
 import { status, cancel } from '@/lib/provider'
-async function refund(id, o) {
-  const r = await rtx('orders/' + id + '/refunded', v => (v ? undefined : true))
-  if (r.committed) await rupd('users/' + o.uid, { saldo: inc(o.price) })
-}
 // GET = cek status (polling), DELETE = batalkan + refund
 export async function GET(req, { params }) {
   try {
@@ -11,7 +8,8 @@ export async function GET(req, { params }) {
     const o = await rget('orders/' + params.id)
     if (!o || o.uid !== uid) return Response.json({ error: 'Tidak ditemukan' }, { status: 404 })
     if (o.status === 'waiting') {
-      const s = await status(o.providerId)
+      let s = { state: 'waiting' }
+      try { s = await status(o.providerId) } catch {}   // hasil utama datang via webhook
       if (s.state === 'success') await rupd('orders/' + params.id, { status: 'success', code: s.code || null })
       if (s.state === 'canceled') { await rupd('orders/' + params.id, { status: 'canceled' }); await refund(params.id, o) }
     }

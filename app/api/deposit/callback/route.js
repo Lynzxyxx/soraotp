@@ -1,8 +1,9 @@
 import { settle } from '@/lib/credit'
-// Webhook buatqris: isi payload tidak dipercaya, status selalu dicek ulang ke provider.
+// Webhook buatqris (callback_url dikirim saat membuat QRIS, id tagihan ada di query).
+// Isi kiriman tidak dipercaya: status selalu dicek ulang ke buatqris sebelum saldo ditambah.
 export async function POST(req) {
-  const b = await req.json().catch(() => ({}))
-  const id = b.order_id || b.id
-  if (id) await settle(String(id))
+  const id = new URL(req.url).searchParams.get('id')
+  if (id) { try { await settle(id) } catch {} }
   return Response.json({ ok: true })
 }
+export const GET = POST

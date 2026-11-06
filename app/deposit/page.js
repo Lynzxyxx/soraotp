@@ -8,7 +8,7 @@ function Body() {
   useEffect(() => watchMine('deposits', me.uid, setList, setMsg), [me.uid])
   useEffect(() => {
     if (!cur) return
-    const t = setInterval(async () => { try { const j = await api('/api/deposit/' + cur.id); if (j.status !== 'pending') { setCur(null); setMsg(j.status === 'success' ? 'Deposit berhasil, saldo bertambah.' : 'Deposit ' + j.status) } } catch {} }, 4000)
+    const t = setInterval(async () => { try { const j = await api('/api/deposit/' + cur.id); if (j.status !== 'pending') { setCur(null); setMsg(j.status === 'success' ? 'Deposit berhasil, saldo bertambah.' : 'Deposit ' + j.status) } } catch (e) { setMsg(e.message) } }, 4000)
     return () => clearInterval(t)
   }, [cur])
   async function pay() {

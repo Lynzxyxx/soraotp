@@ -21,7 +21,7 @@ export default function Landing() {
   return <div className="land">
     <header className="lh"><div className="brand"><img src="/logo-sm.webp" alt="" width="28" height="28" />Sora<span>OTP</span></div><Cta className="btn d" /></header>
     <section className="hero2">
-      <div><h1>Nomor virtual yg memakai verifikasi<em>OTP</em>.</h1>
+      <div><h1>Nomor virtual yg memakai verifikasi <em>OTP</em>.</h1>
         <p>Beli nomor, pakai untuk verifikasi, ambil kodenya. Bayar pakai QRIS, tanpa kartu SIM fisik.</p>
         <div className="row" style={{ marginTop: 0 }}><Cta className="btn xl" />{TG && <a className="btn d xl" href={TG}>Order via Telegram</a>}</div></div>
       <div className="lgimg"><img src="/logo.webp" alt="SoraOTP" /></div>

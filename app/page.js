@@ -23,7 +23,7 @@ export default function Landing() {
     <section className="hero2">
       <div><h1>Nomor virtual untuk terima <em>OTP</em>.</h1>
         <p>Beli nomor, pakai untuk verifikasi, ambil kodenya. Bayar pakai QRIS, tanpa kartu SIM fisik.</p>
-        <div className="row" style={{ marginTop: 0 }}><Cta className="btn lg" />{TG && <a className="btn d lg" href={TG}>Order via Telegram</a>}</div></div>
+        <div className="row" style={{ marginTop: 0 }}><Cta className="btn xl" />{TG && <a className="btn d xl" href={TG}>Order via Telegram</a>}</div></div>
       <div className="lgimg"><img src="/logo.webp" alt="SoraOTP" /></div>
     </section>
     <Stats />

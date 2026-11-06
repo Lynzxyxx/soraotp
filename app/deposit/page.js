@@ -22,7 +22,7 @@ function Body() {
     <div className="card"><div className="mut">Nominal (minimal Rp 5.000)</div>
       <input type="number" inputMode="numeric" min="5000" value={amount} onChange={e => setAmount(e.target.value)} />
       <div className="chips">{[5000, 10000, 20000, 50000, 100000].map(n => <button key={n} onClick={() => setAmount(n)}>{n.toLocaleString('id-ID')}</button>)}</div>
-      <button className="btn lg" style={{ width: '100%' }} disabled={busy} onClick={pay}>{busy ? 'Membuat QRIS…' : 'Bayar dengan QRIS'}</button>
+      <button className="btn xl" style={{ width: '100%' }} disabled={busy} onClick={pay}>{busy ? 'Membuat QRIS…' : 'Bayar dengan QRIS'}</button>
       {msg && <p className="mono" style={{ fontSize: 13, color: 'var(--warn)', wordBreak: 'break-word' }}>{msg}</p>}
       {cur?.qr && <><img src={cur.qr} alt="QRIS" style={{ width: '100%', maxWidth: 280, background: '#fff', padding: 8, borderRadius: 6 }} /><p className="mut"><span className="dot" />Menunggu pembayaran… saldo masuk otomatis.</p></>}</div>
     <div className="card"><b>Riwayat Deposit</b>

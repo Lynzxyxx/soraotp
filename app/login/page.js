@@ -5,6 +5,7 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswor
 import { ref, set } from 'firebase/database'
 import { auth, db } from '@/lib/firebase'
 import { Eye, EyeOff } from '@/components/Icons'
+import ThemeToggle from '@/components/ThemeToggle'
 export default function Login() {
   const r = useRouter()
   const [reg, setReg] = useState(false), [f, setF] = useState({}), [msg, setMsg] = useState(null), [show, setShow] = useState(false)
@@ -26,7 +27,7 @@ export default function Login() {
     try { await sendPasswordResetEmail(auth, f.email); setMsg({ t: 'Link reset password dikirim ke email.' }) } catch (x) { bad(x) }
   }
   const pwField = (k, ph) => <div className="pw"><input type={show ? 'text' : 'password'} placeholder={ph} required minLength={6} onChange={set(k)} /><button type="button" onClick={() => setShow(!show)}>{show ? <EyeOff /> : <Eye />}</button></div>
-  return <div className="lg"><div className="lgcard">
+  return <div className="lg"><div className="tr"><ThemeToggle /></div><div className="lgcard">
     <form className="lgform" onSubmit={submit}>
       <h1>{reg ? 'BUAT AKUN' : 'WELCOME BACK!'}</h1>
       <p className="sub">{reg ? 'Daftar untuk mulai beli nomor OTP' : 'Masuk ke SoraOTP'}</p>

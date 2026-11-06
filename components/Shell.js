@@ -5,6 +5,7 @@ import { ref, onValue, set } from 'firebase/database'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { Menu, Close } from '@/components/Icons'
+import ThemeToggle from '@/components/ThemeToggle'
 import { auth, db, rp } from '@/lib/firebase'
 const Ctx = createContext(null)
 export const useMe = () => useContext(Ctx)
@@ -40,7 +41,7 @@ export default function Shell({ children }) {
     <Top onMenu={() => setOpen(!open)} open={open} saldo={me.saldo} />
     <div className={'scrim' + (open ? ' on' : '')} onClick={() => setOpen(false)} />
     <nav className={'side' + (open ? ' on' : '')} aria-hidden={!open}>
-      <div className="who"><b>@{(me.email || '').split('@')[0]}</b><span className="mut mono">{rp(me.saldo)}</span></div>
+      <div className="who" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}><div><b>@{(me.email || '').split('@')[0]}</b><span className="mut mono">{rp(me.saldo)}</span></div><ThemeToggle /></div>
       {items.map(([h, t], i) => <Link key={h} href={h} className={path === h ? 'on' : ''} style={{ animationDelay: 40 + i * 28 + 'ms' }}>{t}</Link>)}
       <button className="lo" style={{ color: 'var(--bad)', marginTop: 'auto' }} onClick={out}>Logout</button>
     </nav>

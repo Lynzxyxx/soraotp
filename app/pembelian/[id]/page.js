@@ -11,7 +11,11 @@ const LBL = { waiting: 'Menunggu', success: 'Selesai', canceled: 'Dibatalkan' }
 function Body() {
   const { id } = useParams(), r = useRouter()
   const [o, setO] = useState(null), [err, setErr] = useState(''), [now, setNow] = useState(Date.now()), [cp, setCp] = useState(''), [busy, setBusy] = useState(false)
-  useEffect(() => onValue(ref(db, 'orders/' + id), s => setO(s.val() ? { ...s.val() } : false), e => setErr(e.message)), [id])
+  const [fb, setFb] = useState(false) // true bila baca langsung ditolak rules -> pakai server
+  useEffect(() => onValue(ref(db, 'orders/' + id), s => setO(s.val() ? { ...s.val() } : false), () => setFb(true)), [id])
+  const load = async () => { try { setO((await api('/api/order/' + id)).order || false) } catch (e) { setErr(e.message); setO(v => (v === null ? false : v)) } }
+  useEffect(() => { if (fb) { load(); const t = setInterval(load, 5000); return () => clearInterval(t) } }, [fb, id])
+  useEffect(() => { const t = setTimeout(() => setO(v => { if (v === null) load(); return v }), 4000); return () => clearTimeout(t) }, [id])
   useEffect(() => { const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t) }, [])
   useEffect(() => {
     if (!o || o.status !== 'waiting') return
@@ -19,7 +23,7 @@ function Body() {
     return () => clearInterval(t)
   }, [o?.status, id])
   const copy = (k, v) => { navigator.clipboard?.writeText(String(v)); setCp(k); setTimeout(() => setCp(''), 1500) }
-  async function refresh() { setBusy(true); setErr(''); try { await api('/api/order/' + id) } catch (e) { setErr(e.message) } setBusy(false) }
+  async function refresh() { setBusy(true); setErr(''); await load(); setBusy(false) }
   async function cancel() { setBusy(true); setErr(''); try { await api('/api/order/' + id, { method: 'DELETE' }) } catch (e) { setErr(e.message) } setBusy(false) }
   if (o === null) return <div className="sk" style={{ height: 260 }} />
   if (o === false) return <div className="card">Pesanan tidak ditemukan. {err && <span className="mut mono">{err}</span>}<div className="row"><Link className="btn d" href="/riwayat">Riwayat</Link></div></div>

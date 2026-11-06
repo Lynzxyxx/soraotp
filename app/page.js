@@ -21,7 +21,7 @@ export default function Landing() {
   return <div className="land">
     <header className="lh"><div className="brand"><img src="/logo-sm.webp" alt="" width="28" height="28" />Sora<span>OTP</span></div><Cta className="btn d" /></header>
     <section className="hero2">
-      <div><h1>Nomor virtual untuk terima <em>OTP</em>.</h1>
+      <div><h1>Nomor virtual yg memakai verifikasi<em>OTP</em>.</h1>
         <p>Beli nomor, pakai untuk verifikasi, ambil kodenya. Bayar pakai QRIS, tanpa kartu SIM fisik.</p>
         <div className="row" style={{ marginTop: 0 }}><Cta className="btn xl" />{TG && <a className="btn d xl" href={TG}>Order via Telegram</a>}</div></div>
       <div className="lgimg"><img src="/logo.webp" alt="SoraOTP" /></div>
@@ -30,7 +30,7 @@ export default function Landing() {
     <section className="sec"><h2>Cara pakai</h2><div className="steps">{STEPS.map(([t, d], i) => <div key={t}><i>0{i + 1}</i><span><b>{t}</b><p>{d}</p></span></div>)}</div></section>
     <section className="sec"><h2>Yang kamu dapat</h2><div className="why">{WHY.map(([t, d]) => <div key={t}><span><b>{t}</b><p>{d}</p></span></div>)}</div></section>
     <section className="sec"><h2>Pertanyaan</h2><div className="faq">{FAQ.map(([q, a]) => <details key={q}><summary>{q}</summary><p>{a}</p></details>)}</div></section>
-    <div className="final"><b>Mulai dari Rp 5.000.</b><Cta className="btn" /></div>
+    <div className="final"><b>Mulai</b><Cta className="btn" /></div>
     <footer>© 2026 SoraOTP</footer>
   </div>
 }

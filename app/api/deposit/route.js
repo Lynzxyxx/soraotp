@@ -1,5 +1,6 @@
 import { rkey, rset, uidFrom } from '@/lib/admin'
 import { createQris } from '@/lib/qris'
+import { notifyDeposit } from '@/lib/credit'
 export async function POST(req) {
   try {
     const uid = await uidFrom(req)
@@ -8,6 +9,7 @@ export async function POST(req) {
     const id = rkey('deposits')
     const q = await createQris(id, amount)
     await rset('deposits/' + id, { uid, amount, status: 'pending', qr: q.qr || null, createdAt: Date.now() })
+    await notifyDeposit(uid, amount)
     return Response.json({ id, qr: q.qr })
   } catch (e) { return Response.json({ error: e.message }, { status: 400 }) }
 }

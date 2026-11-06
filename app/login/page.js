@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth'
 import { ref, set } from 'firebase/database'
-import { auth, db } from '@/lib/firebase'
+import { auth, db, api } from '@/lib/firebase'
 import { Eye, EyeOff } from '@/components/Icons'
 import ThemeToggle from '@/components/ThemeToggle'
 export default function Login() {
@@ -18,6 +18,7 @@ export default function Login() {
         if (f.pw !== f.pw2) return setMsg({ e: 1, t: 'Password tidak sama' })
         const c = await createUserWithEmailAndPassword(auth, f.email, f.pw)
         await set(ref(db, 'users/' + c.user.uid), { name: f.name, email: f.email, wa: f.wa, saldo: 0, deposit: 0, pembelian: 0, createdAt: Date.now() })
+        try { await api('/api/notify/register', { method: 'POST' }) } catch {}
       } else await signInWithEmailAndPassword(auth, f.email, f.pw)
       r.replace('/dashboard')
     } catch (x) { bad(x) }

@@ -14,7 +14,7 @@ export default function Admin() {
   if (!ready) return <p style={{ padding: 24 }}>Memuat…</p>
   if (err === 'forbidden') return <p style={{ padding: 24 }}>Akses ditolak. Akun ini bukan owner. Login dengan email yang diisi di OWNER_EMAIL.</p>
   return <main className="wrap" style={{ maxWidth: 900 }}>
-    <div className="card"><b>Admin SoraOTP</b>
+    <div className="card"><div className="item" style={{ padding: 0 }}><b>Admin SoraOTP</b><button className="btn d" onClick={async () => { try { await api('/api/notify/test', { method: 'POST' }); alert('Notifikasi tes terkirim ke Telegram') } catch (e) { alert(e.message) } }}>Tes Telegram</button></div>
       <input placeholder="Cari email / nama / WA…" value={q} onChange={e => { setQ(e.target.value); load(e.target.value) }} /></div>
     {users.map(u => <div className="card" key={u.uid}>
       <b>{u.name}</b> <span className="tag">{u.role || 'user'}</span> {u.blocked && <span className="tag canceled">diblokir</span>} {u.saldoFrozen && <span className="tag waiting">saldo dibekukan</span>}

@@ -6,3 +6,4 @@
 5. Admin: buka `/admin/soraotp` (isi OWNER_EMAIL, daftar dulu dengan email itu).
 6. Deploy: push ke GitHub, import di Vercel, isi semua env var.
 7. Webhook NusaOTP: panggil `/v2/set-webhook` dengan `https://DOMAIN/api/webhook/nusa?key=NUSA_WEBHOOK_SECRET`.
+8. Notifikasi Telegram: isi TELEGRAM_BOT_TOKEN dan TELEGRAM_ADMIN_ID, kirim /start ke bot dari akunmu, lalu tekan 'Tes Telegram' di /admin/soraotp.

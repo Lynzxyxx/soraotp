@@ -6,6 +6,6 @@
   "name":{".write":"auth != null && auth.uid === $uid && data.parent().exists()"},
   "wa":{".write":"auth != null && auth.uid === $uid && data.parent().exists()"}
  }},
- "orders":{".indexOn":["uid","providerId"],".read":"auth != null && query.orderByChild === 'uid' && query.equalTo === auth.uid"},
+ "orders":{"$oid":{".read":"auth != null && data.child('uid').val() === auth.uid"},".indexOn":["uid","providerId"],".read":"auth != null && query.orderByChild === 'uid' && query.equalTo === auth.uid"},
  "deposits":{".indexOn":["uid"],".read":"auth != null && query.orderByChild === 'uid' && query.equalTo === auth.uid"}
 }}

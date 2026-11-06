@@ -5,11 +5,11 @@ import { rp } from '@/lib/firebase'
 function Body() {
   const me = useMe()
   return <>
-    <div className="hero"><h2>Halo <span>@{(me.email || '').split('@')[0]}</span></h2><div style={{ opacity: .8 }}>Dapatkan nomor virtual instan 24 jam dengan sistem verifikasi OTP cepat & terpercaya.</div>
-      <div className="row"><Link className="btn" href="/deposit">Isi Saldo</Link><Link className="btn d" href="/beli">Beli OTP</Link></div></div>
-    <div className="card"><div className="mut">Saldo</div><div className="big">{rp(me.saldo)}</div></div>
-    <div className="row"><div className="card" style={{ flex: 1 }}><div className="mut">Deposit</div><div className="big">{rp(me.deposit)}</div></div>
-      <div className="card" style={{ flex: 1 }}><div className="mut">Pembelian</div><div className="big">{me.pembelian || 0}</div></div></div>
+    <div className="hero"><h2>Halo <span>@{(me.email || '').split('@')[0]}</span></h2>
+      <div className="mut">Saldo</div><div className="big">{rp(me.saldo)}</div>
+      <div className="row"><Link className="btn" href="/beli">Beli nomor</Link><Link className="btn d" href="/deposit">Isi saldo</Link></div></div>
+    <div className="stats" style={{ gridTemplateColumns: '1fr 1fr' }}><div><b>{rp(me.deposit)}</b><span>Total deposit</span></div><div><b>{me.pembelian || 0}</b><span>Pembelian</span></div></div>
+    <Link className="card item" href="/riwayat"><span>Lihat riwayat pembelian</span><span className="mut">›</span></Link>
   </>
 }
 export default function P() { return <Shell><Body /></Shell> }

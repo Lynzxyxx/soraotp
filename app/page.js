@@ -30,7 +30,7 @@ export default function Landing() {
     <section className="sec"><h2>Cara pakai</h2><div className="steps">{STEPS.map(([t, d], i) => <div key={t}><i>0{i + 1}</i><span><b>{t}</b><p>{d}</p></span></div>)}</div></section>
     <section className="sec"><h2>Yang kamu dapat</h2><div className="why">{WHY.map(([t, d]) => <div key={t}><span><b>{t}</b><p>{d}</p></span></div>)}</div></section>
     <section className="sec"><h2>Pertanyaan</h2><div className="faq">{FAQ.map(([q, a]) => <details key={q}><summary>{q}</summary><p>{a}</p></details>)}</div></section>
-    <div className="final"><b>Mulai</b><Cta className="btn" /></div>
+    <div className="final"><b>Mulai Sekarang</b><Cta className="btn" /></div>
     <footer>© 2026 SoraOTP</footer>
   </div>
 }

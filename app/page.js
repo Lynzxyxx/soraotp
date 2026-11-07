@@ -8,7 +8,7 @@ const FEAT = [
   ['Bayar pakai QRIS', 'Isi saldo lewat QRIS. Saldo masuk otomatis setelah pembayaran terdeteksi.'],
   ['Refund otomatis', 'Pesanan tanpa SMS bisa dibatalkan dan saldo kembali utuh.'],
   ['Salin sekali ketuk', 'Nomor dan kode OTP punya tombol salin, siap ditempel ke aplikasi tujuan.'],
-  ['Update realtime', 'Halaman pesanan memperbarui diri sendiri, tanpa refresh berulang.'],
+  ['Halaman di perbarui secara otomati.'],
   ['Banyak server', 'Satu aplikasi punya beberapa server dan harga. Kamu yang memilih.'],
 ]
 const STEPS = [

@@ -120,3 +120,26 @@ footer{text-align:center;padding:28px 16px;color:var(--mut);font-size:13px}
 .sg{display:grid;gap:12px;grid-template-columns:1fr 1fr}@media(min-width:860px){.sg{grid-template-columns:repeat(3,1fr)}}
 .sc .big{font-size:24px;margin-top:4px}
 .fld{display:grid;gap:4px;margin:10px 0}.fld small{color:var(--mut)}
+/* login & daftar (gaya kartu hijau) */
+:root{--aubg:#080808;--aucard:#0b0b0b;--auline:#1f1f1f;--auinp:#111111;--aug:#16c35a;--aug2:#0e9a47}
+[data-theme=light]{--aubg:#f2f6f3;--aucard:#ffffff;--auline:#dbe4dd;--auinp:#f6f9f6;--aug:#12a84d;--aug2:#0d8a3e}
+.au{min-height:100vh;display:grid;place-items:center;padding:28px 16px;position:relative;overflow:hidden;background:var(--aubg)}
+.au::before{content:'';position:absolute;top:-140px;left:50%;width:min(760px,130vw);height:520px;transform:translateX(-50%);background:radial-gradient(closest-side,#16c35a38,transparent);pointer-events:none}
+.aucard{position:relative;width:100%;max-width:520px;border:1px solid var(--auline);border-radius:24px;padding:40px 40px 30px;overflow:hidden;background:radial-gradient(90% 240px at 50% 0,#16c35a24,transparent),var(--aucard)}
+.aucard::before,.aucard::after{content:'';position:absolute;top:0;width:30%;height:210px;pointer-events:none;background:repeating-linear-gradient(90deg,transparent 0 13px,#16c35a8c 13px 14px,transparent 14px 25px,#16c35a40 25px 27px,transparent 27px 44px);-webkit-mask-image:linear-gradient(180deg,#000,transparent);mask-image:linear-gradient(180deg,#000,transparent)}
+.aucard::before{left:0}.aucard::after{right:0}
+.aucard>*{position:relative;z-index:1}
+.aubrand{display:flex;justify-content:center;align-items:center;gap:10px;font:600 24px var(--f-sans),sans-serif}.aubrand img{border-radius:50%}.aubrand span{color:var(--aug)}
+.aucard h1{text-align:center;font-size:30px;font-weight:500;margin:22px 0 8px}.ausub{text-align:center;color:var(--mut);margin:0 0 26px}
+.augo{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;height:50px;border:1px solid var(--auline);background:var(--auinp);color:var(--tx);border-radius:10px;font:500 15px var(--f-sans),sans-serif;cursor:pointer}
+.augo:hover{border-color:var(--aug)}.augo:disabled,.ausubmit:disabled{opacity:.55;cursor:not-allowed}
+.auor{display:flex;align-items:center;gap:14px;color:var(--mut);margin:22px 0 4px}.auor::before,.auor::after{content:'';flex:1;height:1px;background:var(--auline)}
+.aucard form label{display:block;margin:16px 0 8px;font-weight:500}.aucard .req{color:#ef4444;font-style:normal;margin-left:3px}
+.aucard form input:not([type=checkbox]){width:100%;height:50px;padding:0 14px;background:var(--auinp);border:1px solid var(--auline);border-radius:10px;color:var(--tx);font:15px var(--f-sans),sans-serif;outline:none}
+.aucard form input:not([type=checkbox]):focus{border-color:var(--aug)}
+.aucard .pw input{padding-right:46px}
+.aurow{display:flex;justify-content:space-between;align-items:center;margin:16px 0 22px;font-size:15px}.aurow a{color:var(--aug);text-decoration:none}
+.aucard label.chk{display:flex;align-items:center;gap:10px;margin:0;font-weight:400}.chk input{width:18px;height:18px;accent-color:var(--aug)}
+.ausubmit{width:100%;height:50px;border:1px solid #1fd36a55;border-radius:10px;background:linear-gradient(90deg,#14b955,#0e9a47);color:#fff;font:500 16px var(--f-sans),sans-serif;cursor:pointer}
+.auswap{text-align:center;color:var(--mut);margin:20px 0 0}.aulink{background:none;border:0;color:var(--aug);font:inherit;font-weight:500;cursor:pointer;padding:0}
+@media(max-width:520px){.aucard{padding:30px 20px 24px}.aucard h1{font-size:26px}}

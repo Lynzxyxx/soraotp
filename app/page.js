@@ -1,6 +1,7 @@
 import Cta from '@/components/Cta'
 import Stats from '@/components/Stats'
 import ThemeToggle from '@/components/ThemeToggle'
+import { CONTACT as C, igUrl, ttUrl } from '@/lib/contact'
 const TG = process.env.NEXT_PUBLIC_TELEGRAM_URL
 const FEAT = [
   ['Pengiriman instan', 'Nomor dan kode OTP tampil dalam hitungan detik di halaman pesanan.'],
@@ -22,6 +23,8 @@ const FAQ = [
   ['Kalau OTP tidak masuk?', 'Batalkan pesanan dari halaman pesanan. Pembatalan tersedia beberapa menit setelah beli, dan saldo dikembalikan.'],
   ['Apakah aktif 24 jam?', 'Ya, sistemnya berjalan otomatis setiap hari.'],
   ['Perlu pasang aplikasi?', 'Tidak. Semua berjalan di browser HP maupun komputer.'],
+  ['Bagaimana menghubungi admin dan CS?', <>Instagram admin: <a href={igUrl(C.igAdmin)}>@{C.igAdmin}</a>. Instagram CS untuk bantuan transaksi: <a href={igUrl(C.igCs)}>@{C.igCs}</a>.</>],
+  ['Apakah ada akun TikTok?', <>Ada, ikuti <a href={ttUrl(C.tiktok)}>@{C.tiktok}</a> di TikTok.</>],
 ]
 export default function Landing() {
   return <div className="land">
@@ -47,6 +50,6 @@ export default function Landing() {
       <div className="apps3">{APPS.map(a => <div key={a}><i>{a.slice(0, 2).toUpperCase()}</i>{a}</div>)}</div></section>
     <section className="sec" id="faq"><h2>Pertanyaan umum</h2><div className="faq">{FAQ.map(([q, a]) => <details key={q}><summary>{q}</summary><p>{a}</p></details>)}</div></section>
     <div className="final"><div><h2>Siap menerima OTP pertama?</h2><div className="mut">Mulai dari Rp 5.000.</div></div><Cta className="btn xl" /></div>
-    <div className="lf"><span>© 2026 SoraOTP</span>{TG && <a href={TG}>Telegram</a>}</div>
+    <div className="lf"><span>© 2026 SoraOTP</span><span style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>{TG && <a href={TG}>Telegram</a>}<a href={igUrl(C.igAdmin)}>Instagram</a><a href={igUrl(C.igCs)}>CS</a><a href={ttUrl(C.tiktok)}>TikTok</a></span></div>
   </div>
 }

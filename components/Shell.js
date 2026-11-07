@@ -9,7 +9,7 @@ import ThemeToggle from '@/components/ThemeToggle'
 import { auth, db, rp } from '@/lib/firebase'
 const Ctx = createContext(null)
 export const useMe = () => useContext(Ctx)
-const MENU = [['/dashboard','Dashboard'],['/deposit','Isi Saldo'],['/beli','Beli Nomor'],['/riwayat','Riwayat Pembelian'],['/layanan','Layanan & Harga'],['/profile','Pengaturan Akun'],['/tutorial','Tutorial'],['/syarat','Syarat & Ketentuan']]
+const MENU = [['/dashboard','Dashboard'],['/deposit','Isi Saldo'],['/riwayat-deposit','Riwayat Deposit'],['/beli','Beli Nomor'],['/riwayat','Riwayat Pembelian'],['/layanan','Layanan & Harga'],['/profile','Pengaturan Akun'],['/tutorial','Tutorial'],['/syarat','Syarat & Ketentuan']]
 const Top = ({ onMenu, open, saldo }) => <div className="top"><button className="ib" onClick={onMenu} aria-label="Menu">{open ? <Close /> : <Menu />}</button>
   <div className="brand"><img src="/logo-sm.webp" alt="" width="28" height="28" />Sora<span>OTP</span></div>
   {saldo == null ? <span style={{ width: 40 }} /> : <Link className="bal" href="/deposit">{rp(saldo)}</Link>}</div>

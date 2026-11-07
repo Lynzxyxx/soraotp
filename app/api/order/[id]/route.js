@@ -5,15 +5,15 @@ import { status, cancel } from '@/lib/provider'
 export async function GET(req, { params }) {
   try {
     const uid = await uidFrom(req)
-    const o = await rget('orders/' + params.id)
+    const o = await rget('orders/' + params.id); let warn = ''
     if (!o || o.uid !== uid) return Response.json({ error: 'Tidak ditemukan' }, { status: 404 })
     if (o.status === 'waiting') {
       let s = { state: 'waiting' }
-      try { s = await status(o.providerId) } catch {}   // hasil utama datang via webhook
+      try { s = await status(o.providerId) } catch (e) { warn = e.message }   // hasil utama bisa datang via webhook
       if (s.state === 'success') await finishOrder(params.id, o, 'success', s.code)
       if (s.state === 'canceled') await finishOrder(params.id, o, 'canceled')
     }
-    return Response.json({ order: await rget('orders/' + params.id) })
+    return Response.json({ order: await rget('orders/' + params.id), warn })
   } catch (e) { return Response.json({ error: e.message }, { status: 400 }) }
 }
 export async function DELETE(req, { params }) {

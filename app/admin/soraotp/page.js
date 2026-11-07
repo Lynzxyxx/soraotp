@@ -71,7 +71,7 @@ function List({ type }) {
         <span style={{ textAlign: 'right' }}><span className="mono">{rp(x.amount)}</span>{x.pay && x.pay !== x.amount && <span className="mut mono" style={{ fontSize: 12 }}><br />bayar {rp(x.pay)}</span>}<br /><span className={'tag ' + (x.status === 'pending' ? 'waiting' : x.status)}>{x.status}</span></span></div>)}</div>
 }
 function Settings() {
-  const [s, setS] = useState(null), [m, setM] = useState('')
+  const [s, setS] = useState(null), [m, setM] = useState(''), [dbg, setDbg] = useState(null)
   useEffect(() => { api('/api/admin/data?type=settings').then(j => setS(j.settings)).catch(x => setM(x.message)) }, [])
   if (!s) return m ? <p style={{ color: 'var(--bad)' }}>{m}</p> : <div className="sk" style={{ height: 200 }} />
   const F = (k, label, hint) => <div className="fld"><label>{label}</label><input type="number" step="any" value={s[k]} onChange={e => setS({ ...s, [k]: e.target.value })} /><small>{hint}</small></div>
@@ -83,6 +83,11 @@ function Settings() {
       {F('feePercent', 'Biaya admin (%)', 'Dihitung dari nominal, dibulatkan ke atas')}{F('feeFlat', 'Biaya tetap (Rp)', 'Ditambahkan di atas biaya persen')}{F('minDeposit', 'Minimal deposit (Rp)', 'Antara 1.000 dan 1.000.000')}</div>
     <div className="row"><button className="btn" onClick={save}>Simpan pengaturan</button>
       <button className="btn d" onClick={async () => { try { await api('/api/notify/test', { method: 'POST' }); alert('Notifikasi tes terkirim ke Telegram') } catch (e) { alert(e.message) } }}>Tes Telegram</button></div>
+    <div className="card" style={{ marginTop: 12 }}><b>Webhook NusaOTP</b><p className="mut">Supaya OTP masuk otomatis ke halaman pesanan. Butuh env NUSA_WEBHOOK_SECRET.</p>
+      <div className="row" style={{ marginTop: 0 }}>
+        <button className="btn" onClick={async () => { try { const j = await api('/api/admin/webhook', { method: 'POST' }); alert('Webhook didaftarkan: ' + j.url + '\nRespon provider: ' + JSON.stringify(j.result)) } catch (e) { alert(e.message) } }}>Daftarkan webhook</button>
+        <button className="btn d" onClick={async () => { try { setDbg(await api('/api/admin/data?type=debug')) } catch (e) { alert(e.message) } }}>Lihat webhook terakhir</button></div>
+      {dbg && <pre className="mono" style={{ fontSize: 12, whiteSpace: 'pre-wrap', wordBreak: 'break-all', marginTop: 10 }}>{dbg.lastWebhook ? new Date(dbg.lastWebhook.at).toLocaleString('id-ID') + '\n' + dbg.lastWebhook.body : 'Belum ada webhook yang masuk.'}{dbg.rejected ? '\n\nDitolak (key salah) terakhir: ' + new Date(dbg.rejected.at).toLocaleString('id-ID') : ''}</pre>}</div>
     {m && <p className="mono" style={{ fontSize: 13, color: 'var(--warn)' }}>{m}</p>}</>
 }
 function Panel() {

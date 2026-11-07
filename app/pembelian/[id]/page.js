@@ -12,13 +12,13 @@ function Body() {
   const { id } = useParams(), r = useRouter()
   const [o, setO] = useState(null), [err, setErr] = useState(''), [now, setNow] = useState(Date.now()), [cp, setCp] = useState(''), [busy, setBusy] = useState(false), [fb, setFb] = useState(false)
   useEffect(() => onValue(ref(db, 'orders/' + id), s => setO(s.val() ? { ...s.val() } : false), () => setFb(true)), [id])
-  const load = async () => { try { setO((await api('/api/order/' + id)).order || false) } catch (e) { setErr(e.message); setO(v => (v === null ? false : v)) } }
+  const load = async () => { try { const j = await api('/api/order/' + id); setO(j.order || false); setErr(j.warn || '') } catch (e) { setErr(e.message); setO(v => (v === null ? false : v)) } }
   useEffect(() => { if (fb) { load(); const t = setInterval(load, 5000); return () => clearInterval(t) } }, [fb, id])
   useEffect(() => { const t = setTimeout(() => setO(v => { if (v === null) load(); return v }), 4000); return () => clearTimeout(t) }, [id])
   useEffect(() => { const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t) }, [])
   useEffect(() => {
     if (!o || o.status !== 'waiting') return
-    const t = setInterval(() => api('/api/order/' + id).catch(() => {}), 6000)
+    const t = setInterval(() => api('/api/order/' + id).then(j => setErr(j.warn || '')).catch(() => {}), 6000)
     return () => clearInterval(t)
   }, [o?.status, id])
   const copy = (k, v) => { navigator.clipboard?.writeText(String(v)); setCp(k); setTimeout(() => setCp(''), 1500) }

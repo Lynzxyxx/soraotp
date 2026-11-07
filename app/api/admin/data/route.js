@@ -7,6 +7,7 @@ export async function GET(req) {
   try {
     await ownerFrom(req)
     const type = new URL(req.url).searchParams.get('type')
+    if (type === 'debug') return Response.json({ lastWebhook: (await rget('debug/lastWebhook')) || null, rejected: (await rget('debug/lastWebhookRejected')) || null })
     if (type === 'settings') return Response.json({ settings: await getSettings(true) })
     const [users, orders, deps] = (await Promise.all([rget('users'), rget('orders'), rget('deposits')])).map(x => x || {})
     if (type === 'orders' || type === 'deposits') {

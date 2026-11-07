@@ -35,8 +35,8 @@ export default function Landing() {
         <div className="row" style={{ marginTop: 0 }}><Cta className="btn xl" /><a className="btn d xl" href="#fitur">Lihat fitur</a></div>
         <div className="trust"><span>Aktif 24 jam</span><span>Bayar QRIS</span><span>Refund otomatis</span></div></div>
       <div className="mock" aria-hidden="true">
-        <div className="mc a"><small>WhatsApp</small><div className="nm">+62 812 3456 7890</div><span className="ok2">Nomor berhasil dibuat</span></div>
-        <div className="mc b"><small>OTP diterima</small><div className="cd">123456</div><span className="btn xs">Salin OTP</span></div>
+        <div className="mc a"><small>WhatsApp</small><div className="nm">+62 858 1234 5678</div><span className="ok2">Nomor berhasil dibuat</span></div>
+        <div className="mc b"><small>OTP diterima</small><div className="cd">493728</div><span className="btn xs">Salin OTP</span></div>
         <div className="mc c"><small>Saldo</small><div className="nm">Rp 100.000</div></div></div>
     </section>
     <Stats />

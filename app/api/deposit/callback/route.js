@@ -3,7 +3,7 @@ import { settle } from '@/lib/credit'
 // Isi kiriman tidak dipercaya: status selalu dicek ulang ke buatqris sebelum saldo ditambah.
 export async function POST(req) {
   const id = new URL(req.url).searchParams.get('id')
-  if (id) { try { await settle(id) } catch {} }
+  if (id) { try { await settle(id, { force: true }) } catch {} }
   return Response.json({ ok: true })
 }
 export const GET = POST

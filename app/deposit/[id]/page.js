@@ -11,11 +11,11 @@ function Body() {
   const [d, setD] = useState(null), [err, setErr] = useState(''), [fb, setFb] = useState(false), [busy, setBusy] = useState(false)
   useEffect(() => onValue(ref(db, 'deposits/' + id), s => setD(s.val() ? { ...s.val() } : false), () => setFb(true)), [id])
   const load = async () => { try { const j = await api('/api/deposit/' + id); setD(v => ({ ...(v || {}), ...j.deposit })); setErr(j.warn || '') } catch (e) { setErr(e.message); setD(v => (v === null ? false : v)) } }
-  useEffect(() => { if (fb) { load(); const t = setInterval(load, 5000); return () => clearInterval(t) } }, [fb, id])
+  useEffect(() => { if (fb) { load(); const t = setInterval(load, 10000); return () => clearInterval(t) } }, [fb, id])
   useEffect(() => { const t = setTimeout(() => setD(v => { if (v === null) load(); return v }), 4000); return () => clearTimeout(t) }, [id])
   useEffect(() => { // memicu pengecekan ke buatqris selama belum lunas
     if (!d || d.status !== 'pending') return
-    const t = setInterval(() => api('/api/deposit/' + id).then(j => setErr(j.warn || '')).catch(e => setErr(e.message)), 4000)
+    const t = setInterval(() => api('/api/deposit/' + id).then(j => setErr(j.warn || '')).catch(e => setErr(e.message)), 12000)
     return () => clearInterval(t)
   }, [d?.status, id])
   async function refresh() { setBusy(true); await load(); setBusy(false) }

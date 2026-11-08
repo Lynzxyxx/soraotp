@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth'
 import { auth, api, rp, ago } from '@/lib/firebase'
 import ThemeToggle from '@/components/ThemeToggle'
-const TABS = [['ringkasan', 'Ringkasan'], ['pengguna', 'Pengguna'], ['pesanan', 'Pesanan'], ['deposit', 'Deposit'], ['pengaturan', 'Pengaturan']]
+const TABS = [['ringkasan', 'Ringkasan'], ['pengguna', 'Pengguna'], ['pesanan', 'Pesanan'], ['deposit', 'Deposit'], ['rekap', 'Rekap & Bot'], ['pengaturan', 'Pengaturan']]
 const Stat = ({ l, v }) => <div className="card sc"><div className="mut">{l}</div><div className="big">{v}</div></div>
 const Badge = ({ ok, children }) => <span className={'tag ' + (ok ? 'success' : 'canceled')}>{children}</span>
 
@@ -72,7 +72,7 @@ function List({ type }) {
           {x.status === 'pending' && <><br /><button className="btn d xs" style={{ marginTop: 6 }} onClick={async () => { if (!confirm('Pastikan pembayaran ' + rp(x.pay || x.amount) + ' sudah masuk di dashboard BuatQRIS. Kredit saldo ' + rp(x.amount) + ' ke ' + x.email + '?')) return; try { await api('/api/admin/deposit', { method: 'POST', body: JSON.stringify({ id: x.id }) }); setL(l.map(y => y.id === x.id ? { ...y, status: 'success' } : y)) } catch (e) { alert(e.message) } }}>Tandai lunas</button></>}</span></div>)}</div>
 }
 function Settings() {
-  const [s, setS] = useState(null), [m, setM] = useState(''), [dbg, setDbg] = useState(null)
+  const [s, setS] = useState(null), [m, setM] = useState(''), [dbg, setDbg] = useState(null), [pp, setPp] = useState('/v2/order/'), [pr, setPr] = useState('')
   useEffect(() => { api('/api/admin/data?type=settings').then(j => setS(j.settings)).catch(x => setM(x.message)) }, [])
   if (!s) return m ? <p style={{ color: 'var(--bad)' }}>{m}</p> : <div className="sk" style={{ height: 200 }} />
   const F = (k, label, hint) => <div className="fld"><label>{label}</label><input type="number" step="any" value={s[k]} onChange={e => setS({ ...s, [k]: e.target.value })} /><small>{hint}</small></div>
@@ -89,7 +89,45 @@ function Settings() {
         <button className="btn" onClick={async () => { try { const j = await api('/api/admin/webhook', { method: 'POST' }); alert('Webhook didaftarkan: ' + j.url + '\nRespon provider: ' + JSON.stringify(j.result)) } catch (e) { alert(e.message) } }}>Daftarkan webhook</button>
         <button className="btn d" onClick={async () => { try { setDbg(await api('/api/admin/data?type=debug')) } catch (e) { alert(e.message) } }}>Lihat webhook terakhir</button></div>
       {dbg && <pre className="mono" style={{ fontSize: 12, whiteSpace: 'pre-wrap', wordBreak: 'break-all', marginTop: 10 }}>{dbg.lastWebhook ? new Date(dbg.lastWebhook.at).toLocaleString('id-ID') + '\n' + dbg.lastWebhook.body : 'Belum ada webhook yang masuk.'}{dbg.rejected ? '\n\nDitolak (key salah) terakhir: ' + new Date(dbg.rejected.at).toLocaleString('id-ID') : ''}</pre>}</div>
+    <div className="card" style={{ marginTop: 12 }}><b>Uji endpoint NusaOTP (GET)</b><p className="mut">Untuk mencari endpoint yang benar. Hanya membaca data, tidak membuat pesanan. Contoh: /v2/order/1021072</p>
+      <input value={pp} onChange={e => setPp(e.target.value)} placeholder="/v2/..." />
+      <button className="btn d" onClick={async () => { setPr('…'); try { const j = await api('/api/admin/probe', { method: 'POST', body: JSON.stringify({ path: pp }) }); setPr('HTTP ' + j.status + '\n' + j.body) } catch (e) { setPr(e.message) } }}>Kirim</button>
+      {pr && <pre className="mono" style={{ fontSize: 12, whiteSpace: 'pre-wrap', wordBreak: 'break-all', marginTop: 10 }}>{pr}</pre>}</div>
     {m && <p className="mono" style={{ fontSize: 13, color: 'var(--warn)' }}>{m}</p>}</>
+}
+const NOTIF = [['register', 'Pengguna baru daftar'], ['login', 'Login pengguna'], ['depositNew', 'Deposit dibuat'], ['depositOk', 'Deposit berhasil'], ['orderNew', 'Pesanan baru'], ['orderOk', 'Pesanan selesai (OTP diterima)'], ['orderCancel', 'Pesanan dibatalkan'], ['admin', 'Aksi admin']]
+function Recap() {
+  const [s, setS] = useState(null), [m, setM] = useState(''), [img, setImg] = useState(''), [busy, setBusy] = useState('')
+  useEffect(() => { api('/api/admin/data?type=settings').then(j => setS(j.settings)).catch(x => setM(x.message)) }, [])
+  if (!s) return m ? <p style={{ color: 'var(--bad)' }}>{m}</p> : <div className="sk" style={{ height: 200 }} />
+  const body = () => JSON.stringify({ recapFormat: s.recapFormat, recapPeriod: s.recapPeriod, recapAuto: s.recapAuto, ...Object.fromEntries(NOTIF.map(([k]) => ['n_' + k, s['n_' + k]])) })
+  const run = (name, fn) => async () => { setBusy(name); setM(''); try { await fn() } catch (e) { setM(e.message) } setBusy('') }
+  const save = run('save', async () => { setS((await api('/api/admin/settings', { method: 'POST', body: body() })).settings); setM('Pengaturan disimpan.') })
+  const kirim = run('kirim', async () => { await api('/api/admin/recap', { method: 'POST', body: JSON.stringify({ period: s.recapPeriod, format: s.recapFormat }) }); setM('Rekap terkirim ke Telegram.') })
+  const preview = run('prev', async () => {
+    const tok = await auth.currentUser.getIdToken(), r = await fetch('/api/admin/recap?period=' + s.recapPeriod, { headers: { Authorization: 'Bearer ' + tok } })
+    if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || 'Gagal membuat gambar (HTTP ' + r.status + ')')
+    setImg(URL.createObjectURL(await r.blob()))
+  })
+  const setup = run('setup', async () => { await api('/api/admin/telegram-setup', { method: 'POST' }); setM('Perintah bot aktif. Kirim /help ke bot di Telegram.') })
+  const test = run('test', async () => { await api('/api/notify/test', { method: 'POST' }); setM('Pesan tes terkirim ke Telegram.') })
+  const sel = (k, opts) => <select value={s[k]} onChange={e => setS({ ...s, [k]: e.target.value })}>{opts.map(([v, t]) => <option key={v} value={v}>{t}</option>)}</select>
+  return <>
+    <div className="card"><b>Rekap ke Telegram</b><p className="mut">Ringkasan pengguna, deposit, dan pesanan. Pilih bentuknya, lalu kirim kapan saja atau jadwalkan otomatis.</p>
+      <div className="fld"><label>Bentuk rekap</label>{sel('recapFormat', [['text', 'Teks'], ['image', 'Gambar'], ['both', 'Teks + Gambar']])}</div>
+      <div className="fld"><label>Periode</label>{sel('recapPeriod', [['today', 'Hari ini'], ['7d', '7 hari terakhir'], ['30d', '30 hari terakhir'], ['all', 'Semua waktu']])}</div>
+      <label className="chk" style={{ display: 'flex', gap: 10, alignItems: 'center', margin: '12px 0' }}><input type="checkbox" style={{ width: 18, margin: 0 }} checked={!!s.recapAuto} onChange={e => setS({ ...s, recapAuto: e.target.checked ? 1 : 0 })} />Kirim otomatis tiap malam pukul 22.00 WIB</label>
+      <p className="mut" style={{ fontSize: 13 }}>Rekap otomatis butuh env CRON_SECRET di Vercel (string acak panjang).</p>
+      <div className="row"><button className="btn" disabled={!!busy} onClick={kirim}>{busy === 'kirim' ? 'Mengirim…' : 'Kirim rekap sekarang'}</button>
+        <button className="btn d" disabled={!!busy} onClick={preview}>{busy === 'prev' ? 'Membuat…' : 'Pratinjau gambar'}</button>
+        <button className="btn d" disabled={!!busy} onClick={save}>Simpan</button></div>
+      {img && <img src={img} alt="Pratinjau rekap" style={{ width: '100%', maxWidth: 420, marginTop: 14, borderRadius: 8, border: '1px solid var(--line)' }} />}</div>
+    <div className="card" style={{ marginTop: 12 }}><b>Notifikasi bot</b><p className="mut">Pilih peristiwa yang dikirim ke Telegram.</p>
+      {NOTIF.map(([k, t]) => <label key={k} className="chk" style={{ display: 'flex', gap: 10, alignItems: 'center', padding: '8px 0' }}><input type="checkbox" style={{ width: 18, margin: 0 }} checked={s['n_' + k] !== 0} onChange={e => setS({ ...s, ['n_' + k]: e.target.checked ? 1 : 0 })} />{t}</label>)}
+      <div className="row"><button className="btn" disabled={!!busy} onClick={save}>Simpan pengaturan</button></div></div>
+    <div className="card" style={{ marginTop: 12 }}><b>Perintah bot</b><p className="mut">Aktifkan supaya bot menjawab perintah dari chat admin: /rekap, /status, /cari email, /help.</p>
+      <div className="row" style={{ marginTop: 0 }}><button className="btn d" disabled={!!busy} onClick={setup}>Aktifkan perintah bot</button><button className="btn d" disabled={!!busy} onClick={test}>Tes Telegram</button></div></div>
+    {m && <p className="mono" style={{ fontSize: 13, color: 'var(--warn)', wordBreak: 'break-word' }}>{m}</p>}</>
 }
 function Panel() {
   const [tab, setTab] = useState('ringkasan'), [ok, setOk] = useState(null)
@@ -100,7 +138,7 @@ function Panel() {
     <div className="ah"><div className="brand"><img src="/logo-sm.webp" alt="" width="28" height="28" />SORA<span>OTP</span> · Admin</div>
       <div className="r"><ThemeToggle /><Link className="btn d" href="/">Lihat website</Link><button className="btn r" onClick={() => signOut(auth)}>Keluar</button></div></div>
     <div className="tbs">{TABS.map(([k, t]) => <button key={k} className={'tb' + (tab === k ? ' on' : '')} onClick={() => setTab(k)}>{t}</button>)}</div>
-    {tab === 'ringkasan' && <Summary />}{tab === 'pengguna' && <Users />}{tab === 'pesanan' && <List type="orders" />}{tab === 'deposit' && <List type="deposits" />}{tab === 'pengaturan' && <Settings />}
+    {tab === 'ringkasan' && <Summary />}{tab === 'pengguna' && <Users />}{tab === 'pesanan' && <List type="orders" />}{tab === 'deposit' && <List type="deposits" />}{tab === 'rekap' && <Recap />}{tab === 'pengaturan' && <Settings />}
   </div>
 }
 export default function Admin() {

@@ -1,4 +1,5 @@
 import { aauth, ownerFrom, rget, rupd, rpush, inc } from '@/lib/admin'
+import { nAdmin } from '@/lib/notify'
 const err = e => Response.json({ error: e.message }, { status: e.message === 'forbidden' ? 403 : 400 })
 export async function GET(req) {
   try {
@@ -26,6 +27,7 @@ export async function POST(req) {
     else if (action === 'role') { if (!['user', 'reseller', 'owner'].includes(value)) throw new Error('Role tidak valid'); await rupd(p, { role: value }) }
     else throw new Error('Aksi tidak dikenal')
     await rpush('adminLogs', { admin, uid, action, value: action === 'password' ? '***' : value ?? null, at: Date.now() })
+    await nAdmin(admin, action, uid, value)
     return Response.json({ ok: true })
   } catch (e) { return err(e) }
 }

@@ -20,10 +20,12 @@ const errText = x => (x?.code ? ERR[x.code] || x.code.replace('auth/', '').repla
 // buat profil di database bila belum ada (daftar baru / login Google pertama kali)
 async function ensureProfile(u, extra = {}) {
   const s = await get(ref(db, 'users/' + u.uid))
-  if (s.exists()) return
+  if (s.exists()) return false
   await set(ref(db, 'users/' + u.uid), { name: u.displayName || (u.email || '').split('@')[0], email: u.email, wa: '', saldo: 0, deposit: 0, pembelian: 0, createdAt: Date.now(), ...extra })
   try { await api('/api/notify/register', { method: 'POST' }) } catch {}
+  return true
 }
+const notifyLogin = m => { api('/api/notify/login', { method: 'POST', body: JSON.stringify({ method: m }) }).catch(() => {}) }
 export default function Login() {
   const r = useRouter()
   const [inapp, setInapp] = useState(false)
@@ -40,7 +42,7 @@ export default function Login() {
         if (f.pw !== f.pw2) throw { message: 'Password tidak sama' }
         const c = await createUserWithEmailAndPassword(auth, email, f.pw)
         await ensureProfile(c.user, { name: (f.name || '').trim(), wa: (f.wa || '').trim() })
-      } else await signInWithEmailAndPassword(auth, email, f.pw)
+      } else { await signInWithEmailAndPassword(auth, email, f.pw); notifyLogin('email') }
       r.replace('/dashboard')
     } catch (x) { setMsg({ e: 1, t: errText(x), sw: x?.code === 'auth/email-already-in-use' }) }
     setBusy(false)
@@ -50,7 +52,8 @@ export default function Login() {
     try {
       await persist()
       const c = await signInWithPopup(auth, new GoogleAuthProvider())
-      await ensureProfile(c.user)
+      const created = await ensureProfile(c.user)
+      if (!created) notifyLogin('google')
       r.replace('/dashboard')
     } catch (x) { if (!['auth/popup-closed-by-user', 'auth/cancelled-popup-request'].includes(x?.code)) setMsg({ e: 1, t: errText(x) }) }
     setBusy(false)

@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, signInWithPopup, GoogleAuthProvider, setPersistence, browserLocalPersistence, browserSessionPersistence } from 'firebase/auth'
 import { ref, set, get } from 'firebase/database'
@@ -14,7 +14,7 @@ const ERR = {
   'auth/too-many-requests': 'Terlalu banyak percobaan. Coba lagi beberapa menit lagi.', 'auth/user-disabled': 'Akun ini diblokir. Hubungi admin.',
   'auth/popup-blocked': 'Pop-up diblokir browser. Izinkan pop-up lalu coba lagi.', 'auth/network-request-failed': 'Koneksi bermasalah. Coba lagi.',
   'auth/account-exists-with-different-credential': 'Email ini sudah terdaftar dengan password. Masuk memakai email dan password.',
-  'auth/operation-not-allowed': 'Metode login ini belum diaktifkan di Firebase.', 'auth/unauthorized-domain': 'Domain ini belum diizinkan di Firebase (Authorized domains).',
+  'auth/invalid-api-key': 'API key Firebase salah. Periksa env NEXT_PUBLIC_FIREBASE_API_KEY.', 'auth/internal-error': 'Kesalahan internal Firebase. Periksa env NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN lalu Redeploy.', 'auth/operation-not-allowed': 'Metode login ini belum diaktifkan di Firebase.', 'auth/unauthorized-domain': 'Domain ini belum diizinkan di Firebase (Authorized domains).',
 }
 const errText = x => (x?.code ? ERR[x.code] || x.code.replace('auth/', '').replace(/-/g, ' ') : x?.message || 'Terjadi kesalahan')
 // buat profil di database bila belum ada (daftar baru / login Google pertama kali)
@@ -26,6 +26,8 @@ async function ensureProfile(u, extra = {}) {
 }
 export default function Login() {
   const r = useRouter()
+  const [inapp, setInapp] = useState(false)
+  useEffect(() => { setInapp(/Instagram|FBAN|FBAV|TikTok|musical_ly|Line\/|; wv\)/i.test(navigator.userAgent)) }, [])
   const [reg, setReg] = useState(false), [f, setF] = useState({}), [msg, setMsg] = useState(null), [show, setShow] = useState(false), [remember, setRemember] = useState(true), [busy, setBusy] = useState(false)
   const set_ = k => e => setF({ ...f, [k]: e.target.value })
   const persist = () => setPersistence(auth, remember ? browserLocalPersistence : browserSessionPersistence)
@@ -65,6 +67,7 @@ export default function Login() {
       <h1>{reg ? 'Buat Akun' : 'Selamat Datang Kembali'}</h1>
       <p className="ausub">{reg ? 'Daftar untuk mulai membeli nomor OTP' : 'Masukkan data kamu untuk masuk ke dashboard'}</p>
       <button type="button" className="augo" onClick={google} disabled={busy}><G />Lanjutkan dengan Google</button>
+      {inapp && <p className="mut" style={{ fontSize: 13, textAlign: 'center', margin: '10px 0 0', color: 'var(--warn)' }}>Kamu membuka lewat aplikasi lain (Instagram/TikTok/dll). Login Google sering ditolak di sini. Buka link ini di Chrome atau Safari.</p>}
       <div className="auor">Atau</div>
       <form onSubmit={submit}>
         {reg && <><label>Nama lengkap<i className="req">*</i></label><input placeholder="Nama kamu" required autoComplete="name" onChange={set_('name')} /></>}

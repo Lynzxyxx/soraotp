@@ -11,7 +11,7 @@ export async function POST(req) {
     const { fee, total } = calcDeposit(amount, st), id = rkey('deposits')
     const q = await createQris(id, total, `${new URL(req.url).origin}/api/deposit/callback?id=${id}`)
     const pay = q.pay || total
-    await rset('deposits/' + id, { uid, amount, fee, pay, status: 'pending', qr: q.qr || null, trxId: q.id || null, createdAt: Date.now() })
+    await rset('deposits/' + id, { uid, amount, fee, pay, status: 'pending', qr: q.qr || null, trxId: q.id || null, raw: q.raw || null, createdAt: Date.now() })
     await notifyDeposit(uid, amount, pay)
     return Response.json({ id, qr: q.qr, fee, pay })
   } catch (e) { return Response.json({ error: e.message }, { status: 400 }) }

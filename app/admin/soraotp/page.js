@@ -67,8 +67,9 @@ function List({ type }) {
     {l.map(x => type === 'orders'
       ? <div className="item" key={x.id}><span>{x.app || x.service} <span className="mut">· {x.countryName}</span><br /><span className="mut mono" style={{ fontSize: 12 }}>{x.email} · {x.number || '-'} · {ago(x.createdAt)}</span></span>
         <span style={{ textAlign: 'right' }}><span className="mono">{rp(x.price)}</span>{x.cost != null && <span className="mut mono" style={{ fontSize: 12 }}><br />laba {rp(x.price - x.cost)}</span>}<br /><span className={'tag ' + x.status}>{x.status}</span></span></div>
-      : <div className="item" key={x.id}><span>{x.email}<br /><span className="mut mono" style={{ fontSize: 12 }}>{ago(x.createdAt)}</span></span>
-        <span style={{ textAlign: 'right' }}><span className="mono">{rp(x.amount)}</span>{x.pay && x.pay !== x.amount && <span className="mut mono" style={{ fontSize: 12 }}><br />bayar {rp(x.pay)}</span>}<br /><span className={'tag ' + (x.status === 'pending' ? 'waiting' : x.status)}>{x.status}</span></span></div>)}</div>
+      : <div className="item" key={x.id}><span>{x.email}<br /><span className="mut mono" style={{ fontSize: 12 }}>{ago(x.createdAt)} · trx {x.trxId || '-'}</span></span>
+        <span style={{ textAlign: 'right' }}><span className="mono">{rp(x.amount)}</span>{x.pay && x.pay !== x.amount && <span className="mut mono" style={{ fontSize: 12 }}><br />bayar {rp(x.pay)}</span>}<br /><span className={'tag ' + (x.status === 'pending' ? 'waiting' : x.status)}>{x.status}</span>
+          {x.status === 'pending' && <><br /><button className="btn d xs" style={{ marginTop: 6 }} onClick={async () => { if (!confirm('Pastikan pembayaran ' + rp(x.pay || x.amount) + ' sudah masuk di dashboard BuatQRIS. Kredit saldo ' + rp(x.amount) + ' ke ' + x.email + '?')) return; try { await api('/api/admin/deposit', { method: 'POST', body: JSON.stringify({ id: x.id }) }); setL(l.map(y => y.id === x.id ? { ...y, status: 'success' } : y)) } catch (e) { alert(e.message) } }}>Tandai lunas</button></>}</span></div>)}</div>
 }
 function Settings() {
   const [s, setS] = useState(null), [m, setM] = useState(''), [dbg, setDbg] = useState(null)

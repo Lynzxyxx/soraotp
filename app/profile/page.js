@@ -3,7 +3,15 @@ import { useState } from 'react'
 import { ref, update } from 'firebase/database'
 import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from 'firebase/auth'
 import Shell, { useMe } from '@/components/Shell'
-import { auth, db } from '@/lib/firebase'
+import { auth, db, api } from '@/lib/firebase'
+function TgLink() {
+  const [r, setR] = useState(null), [e, setE] = useState('')
+  async function go() { setE(''); try { setR(await api('/api/telegram/link-code', { method: 'POST' })) } catch (x) { setE(x.message) } }
+  return <div className="card"><b>Hubungkan Telegram</b><p className="mut">Beli nomor dan terima OTP langsung dari bot Telegram memakai akun yang sama.</p>
+    <button className="btn d" onClick={go}>Buat kode</button>
+    {r && <p>Kode: <b className="mono" style={{ fontSize: 22, letterSpacing: 3 }}>{r.code}</b><br /><span className="mut">Berlaku 5 menit. Kirim <span className="mono">/login {r.code}</span> ke bot{r.link && <>, atau <a href={r.link}>buka bot di Telegram</a></>}.</span></p>}
+    {e && <p style={{ color: 'var(--bad)' }}>{e}</p>}</div>
+}
 function Body() {
   const me = useMe()
   const [n, setN] = useState(me.name || ''), [w, setW] = useState(me.wa || ''), [p, setP] = useState({}), [m, setM] = useState('')
@@ -24,6 +32,7 @@ function Body() {
       <input type="password" placeholder="Password baru" onChange={e => setP({ ...p, b: e.target.value })} />
       <input type="password" placeholder="Konfirmasi password baru" onChange={e => setP({ ...p, c: e.target.value })} />
       <button className="btn" onClick={pw}>Ganti Password</button></div>
+    <TgLink />
     {m && <div className="card mut">{m}</div>}
   </>
 }

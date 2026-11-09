@@ -1,16 +1,17 @@
 import { ownerFrom } from '@/lib/admin'
-import { tgSecret } from '@/lib/telegram'
-// Mengaktifkan perintah bot (/rekap, /status, /cari) dengan mendaftarkan webhook ke Telegram
+import { tgSecret, tgApi } from '@/lib/telegram'
+// Mengaktifkan bot (toko + perintah admin) dengan mendaftarkan webhook ke Telegram
+const PUBLIC = [['start', 'Menu utama'], ['beli', 'Beli nomor'], ['isi', 'Isi saldo'], ['saldo', 'Cek saldo'], ['pesanan', 'Pesanan saya'], ['riwayat', 'Riwayat deposit'], ['login', 'Masuk'], ['daftar', 'Daftar akun'], ['website', 'Buka website'], ['help', 'Bantuan']]
+const ADMIN = [...PUBLIC, ['admin', 'Menu admin'], ['users', 'Daftar pengguna'], ['user', 'Cari pengguna'], ['orders', 'Pesanan terbaru'], ['deposits', 'Deposit terbaru'], ['order', 'Cari pesanan'], ['rekap', 'Kirim rekap'], ['status', 'Ringkasan cepat']]
+const cmds = l => l.map(([command, description]) => ({ command, description }))
 export async function POST(req) {
   try {
     await ownerFrom(req)
-    const t = process.env.TELEGRAM_BOT_TOKEN; if (!t) throw new Error('TELEGRAM_BOT_TOKEN belum diisi')
-    const call = (m, body) => fetch(`https://api.telegram.org/bot${t}/${m}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }).then(r => r.json())
-    const w = await call('setWebhook', { url: `${new URL(req.url).origin}/api/telegram/webhook`, secret_token: tgSecret(), allowed_updates: ['message'] })
-    if (!w.ok) throw new Error('Telegram: ' + (w.description || 'setWebhook gagal'))
-    await call('setMyCommands', { commands: [
-      { command: 'rekap', description: 'Kirim rekap (today, 7d, 30d, all)' }, { command: 'status', description: 'Ringkasan cepat' },
-      { command: 'cari', description: 'Cari pengguna berdasarkan email/nama' }, { command: 'help', description: 'Daftar perintah' }] })
+    if (!process.env.TELEGRAM_BOT_TOKEN) throw new Error('TELEGRAM_BOT_TOKEN belum diisi')
+    const w = await tgApi('setWebhook', { url: `${new URL(req.url).origin}/api/telegram/webhook`, secret_token: tgSecret(), allowed_updates: ['message', 'callback_query'] })
+    if (!w.ok) throw new Error('Telegram: ' + w.error)
+    await tgApi('setMyCommands', { commands: cmds(PUBLIC) })
+    for (const id of (process.env.TELEGRAM_ADMIN_ID || '').split(',').map(s => s.trim()).filter(Boolean)) await tgApi('setMyCommands', { commands: cmds(ADMIN), scope: { type: 'chat', chat_id: id } })
     return Response.json({ ok: true })
   } catch (e) { return Response.json({ error: e.message }, { status: e.message === 'forbidden' ? 403 : 400 }) }
 }

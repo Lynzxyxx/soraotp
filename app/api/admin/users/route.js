@@ -1,5 +1,5 @@
-import { aauth, ownerFrom, rget, rupd, rpush, inc } from '@/lib/admin'
-import { nAdmin } from '@/lib/notify'
+import { ownerFrom, rget } from '@/lib/admin'
+import { userAction } from '@/lib/adminops'
 const err = e => Response.json({ error: e.message }, { status: e.message === 'forbidden' ? 403 : 400 })
 export async function GET(req) {
   try {
@@ -14,20 +14,8 @@ export async function GET(req) {
 // POST {uid, action, value}
 export async function POST(req) {
   try {
-    const admin = await ownerFrom(req)
-    const { uid, action, value } = await req.json()
-    const p = 'users/' + uid
-    if (!(await rget(p))) throw new Error('User tidak ditemukan')
-    const n = Number(value)
-    if (action === 'addSaldo') await rupd(p, { saldo: inc(n) })        // negatif = kurangi
-    else if (action === 'setSaldo') await rupd(p, { saldo: n })
-    else if (action === 'freeze') await rupd(p, { saldoFrozen: !!value })   // banned saldo
-    else if (action === 'block') { await rupd(p, { blocked: !!value }); await aauth.updateUser(uid, { disabled: !!value }); if (value) await aauth.revokeRefreshTokens(uid) }
-    else if (action === 'password') { if (String(value).length < 6) throw new Error('Password minimal 6 karakter'); await aauth.updateUser(uid, { password: String(value) }); await aauth.revokeRefreshTokens(uid) }
-    else if (action === 'role') { if (!['user', 'reseller', 'owner'].includes(value)) throw new Error('Role tidak valid'); await rupd(p, { role: value }) }
-    else throw new Error('Aksi tidak dikenal')
-    await rpush('adminLogs', { admin, uid, action, value: action === 'password' ? '***' : value ?? null, at: Date.now() })
-    await nAdmin(admin, action, uid, value)
+    const admin = await ownerFrom(req), { uid, action, value } = await req.json()
+    await userAction(admin, uid, action, value)
     return Response.json({ ok: true })
   } catch (e) { return err(e) }
 }

@@ -110,6 +110,7 @@ function Recap() {
     setImg(URL.createObjectURL(await r.blob()))
   })
   const setup = run('setup', async () => { await api('/api/admin/telegram-setup', { method: 'POST' }); setM('Perintah bot aktif. Kirim /help ke bot di Telegram.') })
+  const mail = run('mail', async () => { const j = await api('/api/admin/mail-test', { method: 'POST' }); setM('Email tes terkirim ke ' + j.to + '. Cek inbox/spam.') })
   const test = run('test', async () => { await api('/api/notify/test', { method: 'POST' }); setM('Pesan tes terkirim ke Telegram.') })
   const sel = (k, opts) => <select value={s[k]} onChange={e => setS({ ...s, [k]: e.target.value })}>{opts.map(([v, t]) => <option key={v} value={v}>{t}</option>)}</select>
   return <>
@@ -126,7 +127,7 @@ function Recap() {
       {NOTIF.map(([k, t]) => <label key={k} className="chk" style={{ display: 'flex', gap: 10, alignItems: 'center', padding: '8px 0' }}><input type="checkbox" style={{ width: 18, margin: 0 }} checked={s['n_' + k] !== 0} onChange={e => setS({ ...s, ['n_' + k]: e.target.checked ? 1 : 0 })} />{t}</label>)}
       <div className="row"><button className="btn" disabled={!!busy} onClick={save}>Simpan pengaturan</button></div></div>
     <div className="card" style={{ marginTop: 12 }}><b>Perintah bot</b><p className="mut">Aktifkan supaya bot menjawab perintah dari chat admin: /rekap, /status, /cari email, /help.</p>
-      <div className="row" style={{ marginTop: 0 }}><button className="btn d" disabled={!!busy} onClick={setup}>Aktifkan perintah bot</button><button className="btn d" disabled={!!busy} onClick={test}>Tes Telegram</button></div></div>
+      <div className="row" style={{ marginTop: 0 }}><button className="btn d" disabled={!!busy} onClick={setup}>Aktifkan perintah bot</button><button className="btn d" disabled={!!busy} onClick={test}>Tes Telegram</button><button className="btn d" disabled={!!busy} onClick={mail}>Tes email OTP</button></div></div>
     {m && <p className="mono" style={{ fontSize: 13, color: 'var(--warn)', wordBreak: 'break-word' }}>{m}</p>}</>
 }
 function Panel() {

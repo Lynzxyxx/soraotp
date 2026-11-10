@@ -66,13 +66,16 @@ function List({ type }) {
   return <div className="card">{!l.length && <p className="mut">Belum ada data.</p>}
     {l.map(x => type === 'orders'
       ? <div className="item" key={x.id}><span>{x.app || x.service} <span className="mut">· {x.countryName}</span><br /><span className="mut mono" style={{ fontSize: 12 }}>{x.email} · {x.number || '-'} · {ago(x.createdAt)}</span></span>
-        <span style={{ textAlign: 'right' }}><span className="mono">{rp(x.price)}</span>{x.cost != null && <span className="mut mono" style={{ fontSize: 12 }}><br />laba {rp(x.price - x.cost)}</span>}<br /><span className={'tag ' + x.status}>{x.status}</span></span></div>
+        <span style={{ textAlign: 'right' }}><span className="mono">{rp(x.price)}</span>{x.cost != null && <span className="mut mono" style={{ fontSize: 12 }}><br />laba {rp(x.price - x.cost)}</span>}<br /><span className={'tag ' + x.status}>{x.status}</span>
+          {x.status === 'waiting' && <><br /><span style={{ display: 'inline-flex', gap: 6, marginTop: 6 }}>
+            <button className="btn d xs" onClick={async () => { const c = prompt('Masukkan kode OTP dari dashboard NusaOTP:'); if (!c) return; try { await api('/api/admin/order', { method: 'POST', body: JSON.stringify({ id: x.id, action: 'otp', code: c }) }); setL(l.map(y => y.id === x.id ? { ...y, status: 'success', code: c } : y)) } catch (e) { alert(e.message) } }}>Isi OTP</button>
+            <button className="btn r xs" onClick={async () => { if (!confirm('Batalkan pesanan dan kembalikan saldo ke pembeli?')) return; try { await api('/api/admin/order', { method: 'POST', body: JSON.stringify({ id: x.id, action: 'cancel' }) }); setL(l.map(y => y.id === x.id ? { ...y, status: 'canceled' } : y)) } catch (e) { alert(e.message) } }}>Batalkan</button></span></>}</span></div>
       : <div className="item" key={x.id}><span>{x.email}<br /><span className="mut mono" style={{ fontSize: 12 }}>{ago(x.createdAt)} · trx {x.trxId || '-'}</span></span>
         <span style={{ textAlign: 'right' }}><span className="mono">{rp(x.amount)}</span>{x.pay && x.pay !== x.amount && <span className="mut mono" style={{ fontSize: 12 }}><br />bayar {rp(x.pay)}</span>}<br /><span className={'tag ' + (x.status === 'pending' ? 'waiting' : x.status)}>{x.status}</span>
           {x.status === 'pending' && <><br /><button className="btn d xs" style={{ marginTop: 6 }} onClick={async () => { if (!confirm('Pastikan pembayaran ' + rp(x.pay || x.amount) + ' sudah masuk di dashboard BuatQRIS. Kredit saldo ' + rp(x.amount) + ' ke ' + x.email + '?')) return; try { await api('/api/admin/deposit', { method: 'POST', body: JSON.stringify({ id: x.id }) }); setL(l.map(y => y.id === x.id ? { ...y, status: 'success' } : y)) } catch (e) { alert(e.message) } }}>Tandai lunas</button></>}</span></div>)}</div>
 }
 function Settings() {
-  const [s, setS] = useState(null), [m, setM] = useState(''), [dbg, setDbg] = useState(null), [pp, setPp] = useState('/v2/order/'), [pr, setPr] = useState('')
+  const [s, setS] = useState(null), [m, setM] = useState(''), [dbg, setDbg] = useState(null), [pp, setPp] = useState('/v2/order/'), [pr, setPr] = useState(''), [dgId, setDgId] = useState(''), [dg, setDg] = useState(null), [dgBusy, setDgBusy] = useState(false)
   useEffect(() => { api('/api/admin/data?type=settings').then(j => setS(j.settings)).catch(x => setM(x.message)) }, [])
   if (!s) return m ? <p style={{ color: 'var(--bad)' }}>{m}</p> : <div className="sk" style={{ height: 200 }} />
   const F = (k, label, hint) => <div className="fld"><label>{label}</label><input type="number" step="any" value={s[k]} onChange={e => setS({ ...s, [k]: e.target.value })} /><small>{hint}</small></div>
@@ -89,6 +92,17 @@ function Settings() {
         <button className="btn" onClick={async () => { try { const j = await api('/api/admin/webhook', { method: 'POST' }); alert('Webhook didaftarkan: ' + j.url + '\nRespon provider: ' + JSON.stringify(j.result)) } catch (e) { alert(e.message) } }}>Daftarkan webhook</button>
         <button className="btn d" onClick={async () => { try { setDbg(await api('/api/admin/data?type=debug')) } catch (e) { alert(e.message) } }}>Lihat webhook terakhir</button></div>
       {dbg && <pre className="mono" style={{ fontSize: 12, whiteSpace: 'pre-wrap', wordBreak: 'break-all', marginTop: 10 }}>{dbg.lastWebhook ? new Date(dbg.lastWebhook.at).toLocaleString('id-ID') + '\n' + dbg.lastWebhook.body : 'Belum ada webhook yang masuk.'}{dbg.rejected ? '\n\nDitolak (key salah) terakhir: ' + new Date(dbg.rejected.at).toLocaleString('id-ID') : ''}</pre>}</div>
+    <div className="card" style={{ marginTop: 12 }}><b>Diagnosa NusaOTP</b>
+      <p className="mut">Mencari alamat cek status yang benar supaya OTP masuk otomatis. Isi ID order NusaOTP (angka setelah # di halaman pesanan, contoh 1021072), lalu jalankan.</p>
+      <input value={dgId} onChange={e => setDgId(e.target.value)} placeholder="ID order NusaOTP" inputMode="numeric" />
+      <div className="row" style={{ marginTop: 0 }}>
+        <button className="btn" disabled={dgBusy || !dgId} onClick={async () => { setDgBusy(true); setDg(null); try { setDg((await api('/api/admin/diagnose', { method: 'POST', body: JSON.stringify({ orderId: dgId }) })).results) } catch (e) { alert(e.message) } setDgBusy(false) }}>{dgBusy ? 'Menguji…' : 'Jalankan diagnosa'}</button>
+        <button className="btn d" onClick={async () => { try { setS((await api('/api/admin/settings', { method: 'POST', body: JSON.stringify({ nusaStatusPath: '', nusaStatusMethod: 'GET' }) })).settings); setM('Endpoint status kembali ke otomatis.') } catch (e) { setM(e.message) } }}>Pakai otomatis</button></div>
+      <p className="mut" style={{ fontSize: 13 }}>Endpoint status aktif: <span className="mono">{s.nusaStatusPath ? `${s.nusaStatusMethod} ${s.nusaStatusPath}` : 'otomatis'}</span></p>
+      {dg && dg.map((x, i) => <div className="item" key={i} style={{ alignItems: 'flex-start' }}>
+        <span style={{ minWidth: 0 }}><span className="mono" style={{ fontSize: 12 }}>{x.method} {x.tpl || x.path}</span><br /><span className="mono mut" style={{ fontSize: 11, wordBreak: 'break-all' }}>{x.body}</span></span>
+        <span style={{ textAlign: 'right' }}><span className={'tag ' + (x.status === 200 ? 'success' : x.status === 404 || !x.status ? 'canceled' : 'waiting')}>{x.status || 'ERR'}</span>
+          {x.status === 200 && x.tpl && <><br /><button className="btn xs" style={{ marginTop: 6 }} onClick={async () => { try { setS((await api('/api/admin/settings', { method: 'POST', body: JSON.stringify({ nusaStatusPath: x.tpl, nusaStatusMethod: x.method }) })).settings); setM('Endpoint status disimpan: ' + x.method + ' ' + x.tpl) } catch (e) { setM(e.message) } }}>Pakai</button></>}</span></div>)}</div>
     <div className="card" style={{ marginTop: 12 }}><b>Uji endpoint NusaOTP (GET)</b><p className="mut">Untuk mencari endpoint yang benar. Hanya membaca data, tidak membuat pesanan. Contoh: /v2/order/1021072</p>
       <input value={pp} onChange={e => setPp(e.target.value)} placeholder="/v2/..." />
       <button className="btn d" onClick={async () => { setPr('…'); try { const j = await api('/api/admin/probe', { method: 'POST', body: JSON.stringify({ path: pp }) }); setPr('HTTP ' + j.status + '\n' + j.body) } catch (e) { setPr(e.message) } }}>Kirim</button>

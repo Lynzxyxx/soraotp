@@ -12,6 +12,8 @@ export async function POST(req) {
       out[k] = n
     }
     for (const [k, opts] of Object.entries(ENUM)) { if (b[k] === undefined) continue; if (!opts.includes(b[k])) throw new Error(`${k} tidak valid`); out[k] = b[k] }
+    if (b.nusaStatusPath !== undefined) { const v = String(b.nusaStatusPath).trim(); if (v && !/^\/[A-Za-z0-9_\-\/.?=&%{}]{0,118}$/.test(v)) throw new Error('nusaStatusPath tidak valid'); out.nusaStatusPath = v }
+    if (b.nusaStatusMethod !== undefined) out.nusaStatusMethod = b.nusaStatusMethod === 'POST' ? 'POST' : 'GET'
     for (const k of BOOL) { if (b[k] !== undefined) out[k] = Number(b[k]) ? 1 : 0 }
     await rupd('settings', out); resetSettingsCache()
     await rpush('adminLogs', { admin, action: 'settings', value: JSON.stringify(out), at: Date.now() })
